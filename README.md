@@ -1,30 +1,31 @@
-ARG VERSION="3.10-alpine3.16"
+# UPS 2023 Backend 2
+*Made by [Nikita Ananev](https://github.com/coma8765-dev)*
 
-FROM python:$VERSION as builder
+## Run with docker
+```shell
+docker compose -f templates/docker-compose.yaml up -d --build
+```
 
-WORKDIR /app
+## Run without Docker
 
+### Install deps
+```shell
+pip install pipenv
+pipenv install
+```
 
-RUN pip install pipenv==v2022.10.10  && \
-    apk add gcc g++ python3-dev libffi-dev
+### Prepare Postgres Database 
+#### Default params
+```yaml
+POSTGRES_USER: 'postgres'
+POSTGRES_PASSWORD: 'password'
+POSTGRES_HOST: 'localhost'
+POSTGRES_PORT: 5432
+POSTGRES_DATABASE: 'postgres'
+```
+> For change, it [creates `.env` file with this vars](https://www.codementor.io/@parthibakumarmurugesan/what-is-env-how-to-set-up-and-run-a-env-file-in-node-1pnyxw9yxj)
 
-ENV PIPENV_VENV_IN_PROJECT=1
-
-ADD Pipfile* ./
-RUN pipenv install --dev --skip-lock
-
-
-FROM python:$VERSION as prod
-
-WORKDIR /app
-
-
-ENV PIPENV_VENV_IN_PROJECT=1
-RUN pip install pipenv==v2022.10.10
-
-COPY --from=builder /app/ /app/
-
-COPY ./app /app/
-
-EXPOSE 8000
-CMD pipenv run python -m app
+### Run
+```shell
+pipenv run python -m app
+```
